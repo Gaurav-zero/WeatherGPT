@@ -1,3 +1,6 @@
+import Forecast from "../components/forecast";
+import AlertCard from "../components/AlertCard";
+
 function Home(){
     return (
         <main className="min-h-screen bg-slate-50">
@@ -129,6 +132,10 @@ function Home(){
                     </div>
 
                 </div>
+
+
+                <Forecast />
+                <AlertCard />
 
             </section>
 
