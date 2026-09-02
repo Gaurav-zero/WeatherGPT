@@ -1,5 +1,7 @@
 import Forecast from "../components/forecast";
 import AlertCard from "../components/AlertCard";
+import ChatBox from "../components/ChatBox";
+import Footer from "../components/Footer";
 
 function Home(){
     return (
@@ -136,6 +138,8 @@ function Home(){
 
                 <Forecast />
                 <AlertCard />
+                <ChatBox />
+                <Footer />
 
             </section>
 
