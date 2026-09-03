@@ -1,4 +1,4 @@
-const { getLocationName } = require("../services/locationService");
+const { getLocationName, getCoordinates } = require("../services/locationService");
 
 function getWeatherCondition(code) {
   if (code === 0) return "Clear Sky";
@@ -53,7 +53,7 @@ async function getWeatherInfo(req,res){
 
     const locationData= await getLocationName(lat,lon);
 
-    const city= locationData.address.city || locationData.address.town || locationData.address.village|| "Unknown";
+    const city= locationData.address.city || locationData.address.state_district || locationData.address.town || locationData.address.county || locationData.address.village|| "Unknown";
 
     const suburb =
         locationData.address.suburb ||
@@ -61,47 +61,94 @@ async function getWeatherInfo(req,res){
         "";
 
     const url= `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code,uv_index,visibility&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`;
+    
+    console.log("Weather URL:", url);
+    
+    try {
+        const response = await fetch(url);
 
-    const response= await fetch(url);
-    const data= await response.json();
+        if (!response.ok) {
+            throw new Error(`Open-Meteo returned ${response.status}`);
+        }
 
-    const currentWeather = {
-        temperature: data.current.temperature_2m,
-        feelsLike: data.current.apparent_temperature,
-        humidity: data.current.relative_humidity_2m,
-        windSpeed: data.current.wind_speed_10m,
-        condition: getWeatherCondition(data.current.weather_code),
-        icon: getWeatherIcon(data.current.weather_code),
-        uv: data.current.uv_index,
-        visibility: data.current.visibility,
-    };
+        const data = await response.json();
 
-    const forecast = data.daily.time.map((date, index) => {
-        return {
-            date: date,
-            high: data.daily.temperature_2m_max[index],
-            low: data.daily.temperature_2m_min[index],
-            condition: getWeatherCondition(data.daily.weather_code[index]),
-            icon: getWeatherIcon(data.daily.weather_code[index]),
-            rainProbability:
-            data.daily.precipitation_probability_max[index],
+        const currentWeather = {
+            temperature: data.current.temperature_2m,
+            feelsLike: data.current.apparent_temperature,
+            humidity: data.current.relative_humidity_2m,
+            windSpeed: data.current.wind_speed_10m,
+            condition: getWeatherCondition(data.current.weather_code),
+            icon: getWeatherIcon(data.current.weather_code),
+            uv: data.current.uv_index,
+            visibility: data.current.visibility,
         };
-    });
 
-    res.json({
-        location: {
-            latitude: Number(lat),
-            longitude: Number(lon),
-            city: city,
-            state: locationData.address.state,
-            country: locationData.address.country,
-            suburb: suburb
-        },
-        current: currentWeather,
-        forecast: forecast,
+        const forecast = data.daily.time.map((date, index) => {
+            return {
+                date: date,
+                high: data.daily.temperature_2m_max[index],
+                low: data.daily.temperature_2m_min[index],
+                condition: getWeatherCondition(data.daily.weather_code[index]),
+                icon: getWeatherIcon(data.daily.weather_code[index]),
+                rainProbability:
+                data.daily.precipitation_probability_max[index],
+            };
+        });
+
+        res.json({
+                location: {
+                    latitude: Number(lat),
+                    longitude: Number(lon),
+                    city: city,
+                    state: locationData.address.state,
+                    country: locationData.address.country,
+                    suburb: suburb
+                },
+                current: currentWeather,
+                forecast: forecast,
+        });
+        } catch (error) {
+            console.error("Weather API error:", error);
+            console.error("Cause:", error.cause);
+
+            return res.status(500).json({
+                error: "Unable to fetch weather data",
+            });
+        }
+
+    
+}
+
+async function searchLocation(req, res) {
+  try {
+    const { place } = req.query;
+
+    if (!place) {
+      return res.status(400).json({
+        error: "Place is required",
+      });
+    }
+
+    const location = await getCoordinates(place);
+
+    if (!location) {
+      return res.status(404).json({
+        error: "Location not found",
+      });
+    }
+
+    res.json(location);
+  } catch (error) {
+    console.error("Search location error:", error);
+
+    res.status(500).json({
+      error: "Unable to search location",
     });
+  }
 }
 
 module.exports= {
     getWeatherInfo,
+    searchLocation,
 }

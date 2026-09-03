@@ -9,6 +9,7 @@ indexRouter.get("/", (req, res) =>{
 });
 
 indexRouter.get("/api/weather", weatherController.getWeatherInfo);
+indexRouter.get("/api/location/search", weatherController.searchLocation);
 
 
 module.exports= indexRouter;

@@ -6,8 +6,36 @@ import Footer from "../components/Footer";
 import { useEffect, useState } from "react";
 
 
+
+
 function Home(){
     const [weather, setWeather]= useState(null);
+    const [search, setSearch]= useState("");
+
+    const handleSearch = () => {
+        fetch(
+            `http://localhost:3000/api/location/search?place=${encodeURIComponent(search)}`
+        )
+            .then((response) => response.json())
+            .then((location) => {
+            console.log("Location:", location);
+
+            const lat = location.lat;
+            const lon = location.lon;
+
+            return fetch(
+                `http://localhost:3000/api/weather?lat=${lat}&lon=${lon}`
+            );
+            })
+            .then((response) => response.json())
+            .then((data) => {
+            console.log("Weather:", data);
+            setWeather(data);
+            })
+            .catch((error) => {
+            console.error("Search error:", error);
+            });
+        };
 
     useEffect(() => {
         navigator.geolocation.getCurrentPosition((position) =>{
@@ -61,9 +89,11 @@ function Home(){
                         type="text"
                         placeholder="Search for a city..."
                         className="flex-1 bg-transparent text-slate-700 outline-none placeholder:text-slate-400"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
                     />
 
-                    <button className="rounded-lg bg-slate-800 px-5 py-2 font-medium text-white transition hover:bg-slate-700">
+                    <button onClick={handleSearch} className="rounded-lg bg-slate-800 px-5 py-2 font-medium text-white transition hover:bg-slate-700">
                         Search
                     </button>
 
@@ -81,12 +111,17 @@ function Home(){
                                 </p>
 
                                 <h2 className="mt-1 text-2xl font-bold text-slate-800">
-                                    {weather?.location.city}, {weather?.location.country}
+                                    {weather
+                                        ? `${weather.location.city}, ${weather.location.country}`
+                                            : "Finding your location..."}
                                 </h2>
 
-                                <p className="mt-1 text-sm text-slate-400">
-                                    {weather?.location.suburb}
-                                </p>
+                                {weather?.location.suburb && (
+                                     <p className="mt-1 text-sm text-slate-400">
+                                        {weather?.location.suburb}
+                                    </p>
+                                )}
+                               
                             </div>
 
                             <p className="text-sm text-slate-400">
