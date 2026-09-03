@@ -1,3 +1,5 @@
+import { data } from "react-router";
+
 const forecastData = [
     { day: "Today", icon: "☀️", condition: "Sunny", high: 31, low: 24 },
     { day: "Thu", icon: "🌤️", condition: "Partly Cloudy", high: 32, low: 25 },
@@ -8,7 +10,7 @@ const forecastData = [
     { day: "Tue", icon: "☀️", condition: "Sunny", high: 33, low: 25 },
 ];
 
-function Forecast() {
+function Forecast({forecast}) {
     return (
         <section className="mt-10">
 
@@ -23,13 +25,15 @@ function Forecast() {
             </div>
 
             <div className="grid grid-cols-7 gap-4">
-                {forecastData.map((day) => (
+                {forecast?.map((day) => (
                     <div
-                        key={day.day}
+                        key={day.date}
                         className="rounded-2xl bg-white p-5 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-md"
                     >
                         <p className="font-semibold text-slate-700">
-                            {day.day}
+                            {new Date(day.date).toLocaleDateString("en-US", {
+                                weekday: "short",
+                            })}
                         </p>
 
                         <div className="my-5 text-4xl">

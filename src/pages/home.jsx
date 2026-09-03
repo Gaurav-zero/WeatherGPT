@@ -10,19 +10,33 @@ function Home(){
     const [weather, setWeather]= useState(null);
 
     useEffect(() => {
-        fetch("http://localhost:3000/api/weather?lat=26.85&lon=80.95")
-            .then((response) => {
-                console.log("Response:", response);
-                return response.json();
-            })
-            .then((data) => {
-                console.log("Weather data:", data);
-                setWeather(data);
-            })
-            .catch((error) => {
-                console.error("Fetch error:", error);
-                });
-        }, []);
+        navigator.geolocation.getCurrentPosition((position) =>{
+            console.log("Current location:",position);
+
+            const lat= position.coords.latitude;
+            const lon= position.coords.longitude;
+
+            console.log("latitude:", lat);
+            console.log("longitude:", lon);
+
+            fetch(`http://localhost:3000/api/weather?lat=${lat}&lon=${lon}`)
+                .then((response) => {
+                    console.log("Response:", response);
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log("Weather data:", data);
+                    setWeather(data);
+                })
+                .catch((error) => {
+                    console.error("Fetch error:", error);
+                    });
+        },
+        (error) => {
+            console.error("Location error:", error);
+        }
+    );      
+   }, []);
 
     return (
         <main className="min-h-screen bg-slate-50">
@@ -80,7 +94,7 @@ function Home(){
                         <div className="mt-8 flex items-center gap-8">
 
                             <div className="text-7xl">
-                                ☀️
+                                {weather?.current.icon}
                             </div>
 
                             <div>
@@ -156,7 +170,7 @@ function Home(){
                 </div>
 
 
-                <Forecast />
+                <Forecast forecast={weather?.forecast} />
                 <AlertCard />
                 <ChatBox />
                 <Footer />
