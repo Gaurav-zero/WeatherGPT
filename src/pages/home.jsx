@@ -3,7 +3,27 @@ import AlertCard from "../components/AlertCard";
 import ChatBox from "../components/ChatBox";
 import Footer from "../components/Footer";
 
+import { useEffect, useState } from "react";
+
+
 function Home(){
+    const [weather, setWeather]= useState(null);
+
+    useEffect(() => {
+        fetch("http://localhost:3000/api/weather?lat=26.85&lon=80.95")
+            .then((response) => {
+                console.log("Response:", response);
+                return response.json();
+            })
+            .then((data) => {
+                console.log("Weather data:", data);
+                setWeather(data);
+            })
+            .catch((error) => {
+                console.error("Fetch error:", error);
+                });
+        }, []);
+
     return (
         <main className="min-h-screen bg-slate-50">
             
@@ -65,15 +85,15 @@ function Home(){
 
                             <div>
                                 <p className="text-6xl font-bold text-slate-800">
-                                    31°
+                                    {weather?.current.temperature}°
                                 </p>
 
                                 <p className="mt-2 text-lg text-slate-500">
-                                    Mostly Sunny
+                                    {weather?.current.condition}
                                 </p>
 
                                 <p className="mt-1 text-sm text-slate-400">
-                                    Feels like 34°
+                                    Feels like {weather?.current.feelsLike}°
                                 </p>
                             </div>
 
@@ -96,7 +116,7 @@ function Home(){
                                 </span>
 
                                 <span className="font-semibold text-slate-800">
-                                    68%
+                                    {weather?.current.humidity}%
                                 </span>
                             </div>
 
@@ -106,7 +126,7 @@ function Home(){
                                 </span>
 
                                 <span className="font-semibold text-slate-800">
-                                    14 km/h
+                                    {weather?.current.windSpeed} km/h
                                 </span>
                             </div>
 
