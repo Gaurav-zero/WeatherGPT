@@ -1,6 +1,7 @@
 const {Router}= require("express");
 const weatherController= require("../controllers/weatherController");
 
+
 const indexRouter= Router();
 
 indexRouter.get("/", (req, res) =>{
@@ -8,5 +9,6 @@ indexRouter.get("/", (req, res) =>{
 });
 
 indexRouter.get("/api/weather", weatherController.getWeatherInfo);
+
 
 module.exports= indexRouter;

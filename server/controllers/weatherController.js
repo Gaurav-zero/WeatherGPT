@@ -1,3 +1,5 @@
+const { getLocationName } = require("../services/locationService");
+
 function getWeatherCondition(code) {
   if (code === 0) return "Clear Sky";
 
@@ -49,6 +51,15 @@ function getWeatherIcon(code) {
 async function getWeatherInfo(req,res){
     const {lat, lon} = req.query;
 
+    const locationData= await getLocationName(lat,lon);
+
+    const city= locationData.address.city || locationData.address.town || locationData.address.village|| "Unknown";
+
+    const suburb =
+        locationData.address.suburb ||
+        locationData.address.neighbourhood ||
+        "";
+
     const url= `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code,uv_index,visibility&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`;
 
     const response= await fetch(url);
@@ -81,6 +92,10 @@ async function getWeatherInfo(req,res){
         location: {
             latitude: Number(lat),
             longitude: Number(lon),
+            city: city,
+            state: locationData.address.state,
+            country: locationData.address.country,
+            suburb: suburb
         },
         current: currentWeather,
         forecast: forecast,

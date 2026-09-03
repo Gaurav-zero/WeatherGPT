@@ -81,8 +81,12 @@ function Home(){
                                 </p>
 
                                 <h2 className="mt-1 text-2xl font-bold text-slate-800">
-                                    Lucknow, India
+                                    {weather?.location.city}, {weather?.location.country}
                                 </h2>
+
+                                <p className="mt-1 text-sm text-slate-400">
+                                    {weather?.location.suburb}
+                                </p>
                             </div>
 
                             <p className="text-sm text-slate-400">
