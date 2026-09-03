@@ -136,7 +136,7 @@ function Home(){
                                 </span>
 
                                 <span className="font-semibold text-slate-800">
-                                    7
+                                    {weather?.current.uv}
                                 </span>
                             </div>
 
@@ -146,7 +146,7 @@ function Home(){
                                 </span>
 
                                 <span className="font-semibold text-slate-800">
-                                    8 km
+                                    {(weather?.current.visibility / 1000).toFixed(1)} km
                                 </span>
                             </div>
 

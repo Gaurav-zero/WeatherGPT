@@ -25,7 +25,7 @@ function getWeatherCondition(code) {
 async function getWeatherInfo(req,res){
     const {lat, lon} = req.query;
 
-    const url= `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`;
+    const url= `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code,uv_index,visibility&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`;
 
     const response= await fetch(url);
     const data= await response.json();
@@ -36,6 +36,8 @@ async function getWeatherInfo(req,res){
         humidity: data.current.relative_humidity_2m,
         windSpeed: data.current.wind_speed_10m,
         condition: getWeatherCondition(data.current.weather_code),
+        uv: data.current.uv_index,
+        visibility: data.current.visibility,
     };
 
     const forecast = data.daily.time.map((date, index) => {
