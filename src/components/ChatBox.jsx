@@ -25,6 +25,7 @@ function ChatBox({weather}) {
                 body: JSON.stringify({
                     message,
                     weather,
+                    messages,
                 }),
             });
 
