@@ -1,4 +1,5 @@
 const { getLocationName, getCoordinates } = require("../services/locationService");
+const {generateAlert}= require("../services/alertService");
 
 function getWeatherCondition(code) {
   if (code === 0) return "Clear Sky";
@@ -92,9 +93,12 @@ async function getWeatherInfo(req,res){
                 condition: getWeatherCondition(data.daily.weather_code[index]),
                 icon: getWeatherIcon(data.daily.weather_code[index]),
                 rainProbability:
-                data.daily.precipitation_probability_max[index],
+                      data.daily.precipitation_probability_max[index],
+                weatherCode: data.daily.weather_code[index],
             };
         });
+
+        const alert= generateAlert(forecast);
 
         res.json({
                 location: {
@@ -107,6 +111,7 @@ async function getWeatherInfo(req,res){
                 },
                 current: currentWeather,
                 forecast: forecast,
+                alert: alert,
         });
         } catch (error) {
             console.error("Weather API error:", error);

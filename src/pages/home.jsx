@@ -210,8 +210,8 @@ function Home(){
 
 
                 <Forecast forecast={weather?.forecast} />
-                <AlertCard />
-                <ChatBox />
+                <AlertCard alert={weather?.alert} />
+                <ChatBox weather={weather} />
                 <Footer />
 
             </section>

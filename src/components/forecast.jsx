@@ -1,15 +1,5 @@
 import { data } from "react-router";
 
-const forecastData = [
-    { day: "Today", icon: "☀️", condition: "Sunny", high: 31, low: 24 },
-    { day: "Thu", icon: "🌤️", condition: "Partly Cloudy", high: 32, low: 25 },
-    { day: "Fri", icon: "🌧️", condition: "Rain", high: 28, low: 23 },
-    { day: "Sat", icon: "⛈️", condition: "Thunderstorm", high: 27, low: 22 },
-    { day: "Sun", icon: "🌤️", condition: "Cloudy", high: 30, low: 23 },
-    { day: "Mon", icon: "☀️", condition: "Sunny", high: 32, low: 24 },
-    { day: "Tue", icon: "☀️", condition: "Sunny", high: 33, low: 25 },
-];
-
 function Forecast({forecast}) {
     return (
         <section className="mt-10">
