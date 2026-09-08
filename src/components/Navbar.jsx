@@ -1,4 +1,18 @@
-const Navbar= () => {
+const languages = [
+    { name: "English", value: "en", speechCode: "en-IN" },
+    { name: "हिन्दी", value: "hi", speechCode: "hi-IN" },
+    { name: "বাংলা", value: "bn", speechCode: "bn-IN" },
+    { name: "मराठी", value: "mr", speechCode: "mr-IN" },
+    { name: "తెలుగు", value: "te", speechCode: "te-IN" },
+    { name: "தமிழ்", value: "ta", speechCode: "ta-IN" },
+    { name: "ગુજરાતી", value: "gu", speechCode: "gu-IN" },
+    { name: "ಕನ್ನಡ", value: "kn", speechCode: "kn-IN" },
+    { name: "മലയാളം", value: "ml", speechCode: "ml-IN" },
+    { name: "ਪੰਜਾਬੀ", value: "pa", speechCode: "pa-IN" },
+    { name: "ଓଡ଼ିଆ", value: "or", speechCode: "or-IN" },
+];
+
+const Navbar= ({language,setLanguage,t}) => {
     return (
         <nav className="w-full border-b border-slate-700 bg-slate-800">
                 <div className="flex items-center justify-between px-6 py-4">
@@ -20,9 +34,16 @@ const Navbar= () => {
 
                             <li>
                                 
-                                <select id="language" name="language" className="rounded-lg border border-slate-600 bg-slate-700 px-3 py-2 text-sm text-white outline-none focus:border-slate-400">
-                                    <option value="en">English</option>
-                                    <option value="hi">Hindi</option>
+                                <select
+                                    value={language}
+                                    onChange={(e) => setLanguage(e.target.value)}
+                                    className="rounded-lg bg-white px-1 py-1 text-black outline-none"
+                                >
+                                    {languages.map((lang) => (
+                                        <option key={lang.value} value={lang.value}>
+                                            {lang.name}
+                                        </option>
+                                    ))}
                                 </select>
                             </li>
                         </ul>

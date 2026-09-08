@@ -1,4 +1,4 @@
-function AlertCard({alert}) {
+function AlertCard({alert,language,setLanguage,t}) {
 
     if(!alert){
         return(
@@ -36,7 +36,7 @@ function AlertCard({alert}) {
 
                             <div>
                                 <p className="text-sm font-medium text-amber-700">
-                                    Weather Alert
+                                    {t.alerts}
                                 </p>
 
                                 <h2 className="mt-1 text-xl font-bold text-slate-800">

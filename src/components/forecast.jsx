@@ -1,16 +1,16 @@
 import { data } from "react-router";
 
-function Forecast({forecast}) {
+function Forecast({forecast,language,setLanguage,t}) {
     return (
         <section className="mt-10">
 
             <div className="mb-5">
                 <h2 className="text-2xl font-bold text-slate-800">
-                    7-Day Forecast
+                    {t.forecast}
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-500">
-                    Weather outlook for the upcoming week
+                    {t.weatherOutlook}
                 </p>
             </div>
 

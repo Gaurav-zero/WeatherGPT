@@ -11,27 +11,11 @@ const cleanTextForSpeech = (text) => {
         .trim();
 };
 
-const languages = [
-    { name: "English", value: "en", speechCode: "en-IN" },
-    { name: "हिन्दी", value: "hi", speechCode: "hi-IN" },
-    { name: "বাংলা", value: "bn", speechCode: "bn-IN" },
-    { name: "मराठी", value: "mr", speechCode: "mr-IN" },
-    { name: "తెలుగు", value: "te", speechCode: "te-IN" },
-    { name: "தமிழ்", value: "ta", speechCode: "ta-IN" },
-    { name: "ગુજરાતી", value: "gu", speechCode: "gu-IN" },
-    { name: "ಕನ್ನಡ", value: "kn", speechCode: "kn-IN" },
-    { name: "മലയാളം", value: "ml", speechCode: "ml-IN" },
-    { name: "ਪੰਜਾਬੀ", value: "pa", speechCode: "pa-IN" },
-    { name: "ଓଡ଼ିଆ", value: "or", speechCode: "or-IN" },
-];
-
-function ChatBox({weather}) {
+function ChatBox({ weather, language, setLanguage, t }) {
     const [message, setMessage]= useState("");
     const [messages, setMessages]= useState([]);
     const [isListening, setIsListening]= useState(false);
     const recognitionRef= useRef(null);
-    const [language, setLanguage]= useState("en");
-
     
 
     const handleVoiceInput= () => {
@@ -148,25 +132,12 @@ function ChatBox({weather}) {
                     </p> */}
 
                     <h2 className="mt-2 text-3xl font-bold text-white">
-                        Ask WeatherGPT
+                        {t.title}
                     </h2>
 
                     <p className="mx-auto mt-3 max-w-2xl text-slate-300">
-                        Ask questions about weather, forecasts, travel,
-                        outdoor activities, agriculture and more.
+                        {t.description}
                     </p>
-
-                    <select
-                        value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
-                        className="rounded-lg bg-white px-1 py-1 text-black outline-none"
-                    >
-                        {languages.map((lang) => (
-                            <option key={lang.value} value={lang.value}>
-                                {lang.name}
-                            </option>
-                        ))}
-                    </select>
                 </div>
 
                 {messages.length > 0 && (
@@ -212,7 +183,7 @@ function ChatBox({weather}) {
                                 handleSend();
                             }
                         }}
-                        placeholder="Will I need an umbrella tomorrow?"
+                        placeholder={t.placeholder}
                         className="flex-1 bg-transparent px-4 py-3 text-slate-700 outline-none placeholder:text-slate-400"
                     />
 
@@ -231,7 +202,7 @@ function ChatBox({weather}) {
                         onClick={handleSend}
                         className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700"
                     >
-                        Ask
+                        {t.ask}
                     </button>
 
                 </div>
@@ -241,15 +212,15 @@ function ChatBox({weather}) {
                 <div className="mt-5 flex justify-center gap-3">
 
                     <button className="rounded-full bg-slate-700 px-4 py-2 text-sm text-slate-200 transition hover:bg-slate-600">
-                        🌧️ Rain forecast
+                        🌧️ {t.rainForecast}
                     </button>
 
                     <button className="rounded-full bg-slate-700 px-4 py-2 text-sm text-slate-200 transition hover:bg-slate-600">
-                        ✈️ Flight weather
+                        ✈️ {t.flightWeather}
                     </button>
 
                     <button className="rounded-full bg-slate-700 px-4 py-2 text-sm text-slate-200 transition hover:bg-slate-600">
-                        🌾 Agriculture
+                        🌾 {t.agriculture}
                     </button>
 
                 </div>

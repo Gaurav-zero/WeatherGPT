@@ -6,11 +6,10 @@ import Footer from "../components/Footer";
 import { useEffect, useState } from "react";
 
 
-
-
-function Home(){
+function Home({language,setLanguage,t}){
     const [weather, setWeather]= useState(null);
     const [search, setSearch]= useState("");
+    
 
     const handleSearch = () => {
         fetch(
@@ -72,11 +71,11 @@ function Home(){
             <section className="mx-auto max-w-7xl px-6 py-10">
 
                 <h1 className="text-3xl font-bold text-slate-800">
-                    Good afternoon 👋 
+                    {t.goodMorning}👋 
                 </h1>
 
                 <p className="mt-2 text-slate-500">
-                    What is the weather looking like today?
+                    {t.todayWeather}
                 </p>
 
                 <div className="mt-8 flex max-w-3xl items-center rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
@@ -87,14 +86,14 @@ function Home(){
 
                     <input
                         type="text"
-                        placeholder="Search for a city..."
+                        placeholder={t.searchCity}
                         className="flex-1 bg-transparent text-slate-700 outline-none placeholder:text-slate-400"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
 
                     <button onClick={handleSearch} className="rounded-lg bg-slate-800 px-5 py-2 font-medium text-white transition hover:bg-slate-700">
-                        Search
+                        {t.search}
                     </button>
 
                 </div>
@@ -107,7 +106,7 @@ function Home(){
 
                             <div>
                                 <p className="text-sm font-medium text-slate-500">
-                                    Current Weather
+                                    {t.currentWeather}
                                 </p>
 
                                 <h2 className="mt-1 text-2xl font-bold text-slate-800">
@@ -125,7 +124,7 @@ function Home(){
                             </div>
 
                             <p className="text-sm text-slate-400">
-                                Today
+                                {t.today}
                             </p>
 
                         </div>
@@ -158,14 +157,14 @@ function Home(){
                     <div className="rounded-2xl bg-white p-8 shadow-sm">
 
                         <p className="text-sm font-medium text-slate-500">
-                            Today's Highlights
+                            {t.todaysHighlights}
                         </p>
 
                         <div className="mt-6 space-y-6">
 
                             <div className="flex items-center justify-between">
                                 <span className="text-slate-500">
-                                    💧 Humidity
+                                    💧 {t.humidity}
                                 </span>
 
                                 <span className="font-semibold text-slate-800">
@@ -175,7 +174,7 @@ function Home(){
 
                             <div className="flex items-center justify-between">
                                 <span className="text-slate-500">
-                                    💨 Wind
+                                    💨 {t.wind}
                                 </span>
 
                                 <span className="font-semibold text-slate-800">
@@ -185,7 +184,7 @@ function Home(){
 
                             <div className="flex items-center justify-between">
                                 <span className="text-slate-500">
-                                    ☀️ UV Index
+                                    ☀️ {t.uvIndex}
                                 </span>
 
                                 <span className="font-semibold text-slate-800">
@@ -195,7 +194,7 @@ function Home(){
 
                             <div className="flex items-center justify-between">
                                 <span className="text-slate-500">
-                                    👁️ Visibility
+                                    👁️ {t.visibility}
                                 </span>
 
                                 <span className="font-semibold text-slate-800">
@@ -209,9 +208,24 @@ function Home(){
                 </div>
 
 
-                <Forecast forecast={weather?.forecast} />
-                <AlertCard alert={weather?.alert} />
-                <ChatBox weather={weather} />
+                <Forecast 
+                    forecast={weather?.forecast}
+                    language={language}
+                    setLanguage={setLanguage}
+                    t={t}                    
+                />
+                <AlertCard 
+                    alert={weather?.alert} 
+                    language={language}
+                    setLanguage={setLanguage}
+                    t={t}                    
+                />
+                <ChatBox
+                    weather={weather}
+                    language={language}
+                    setLanguage={setLanguage}
+                    t={t}
+                />
                 <Footer />
 
             </section>
