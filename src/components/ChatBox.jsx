@@ -1,8 +1,66 @@
-import { useState } from "react";
+import { useState,useRef } from "react";
+import ReactMarkdown from "react-markdown";
+
+const cleanTextForSpeech = (text) => {
+    return text
+        .replace(/\*\*(.*?)\*\*/g, "$1") // remove bold
+        .replace(/\*(.*?)\*/g, "$1")     // remove italic
+        .replace(/#{1,6}\s?/g, "")        // remove headings
+        .replace(/[-*]\s/g, "")           // remove bullet markers
+        .replace(/`{1,3}/g, "")           // remove code backticks
+        .trim();
+};
 
 function ChatBox({weather}) {
     const [message, setMessage]= useState("");
     const [messages, setMessages]= useState([]);
+    const [isListening, setIsListening]= useState(false);
+    const recognitionRef= useRef(null);
+
+    const handleVoiceInput= () => {
+        const SpeechRecognition= window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if(!SpeechRecognition){
+            alert("Speech recognition is not supported in this browser");
+            return;
+        }
+
+        if(isListening){
+            recognitionRef.current?.stop();
+            return;
+        }
+
+        const recognition= new SpeechRecognition();
+
+        recognition.lang= "en-IN";
+        recognition.continuous=false;
+        recognition.interimResults=false;
+
+        recognition.onstart= () =>{
+            setIsListening(true);
+        };
+
+        recognition.onresult= (event) =>{
+            const transcript= event.results[0][0].transcript;
+
+            console.log("Voice input:", transcript);
+
+            setMessage(transcript);
+        };
+
+        recognition.onerror = (event) => {
+            console.error("Speech recognition error:", event.error);
+            setIsListening(false);
+        };
+
+        recognition.onend = () => {
+            setIsListening(false);
+        };
+
+        recognitionRef.current= recognition;
+
+        recognition.start();
+    }
 
     const handleSend=  async()=>{
         if(!message.trim()) return;
@@ -39,6 +97,14 @@ function ChatBox({weather}) {
             console.log("Server response:", data);
 
             setMessages((prev) => [...prev, aiMessage]);
+
+            const speechText= cleanTextForSpeech(data.reply);
+
+            const speech = new SpeechSynthesisUtterance(speechText);
+            speech.lang = "en-IN";
+
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(speech);
         }catch(error){
             console.error("Chat error:", error);
         }
@@ -86,7 +152,10 @@ function ChatBox({weather}) {
                                             : "bg-slate-100 text-slate-800"
                                     }`}
                                 >
-                                    {msg.content}
+                                    <ReactMarkdown>
+                                        {msg.content}
+                                    </ReactMarkdown>
+                                    
                                 </div>
                             </div>
                         ))}
@@ -110,6 +179,17 @@ function ChatBox({weather}) {
                         placeholder="Will I need an umbrella tomorrow?"
                         className="flex-1 bg-transparent px-4 py-3 text-slate-700 outline-none placeholder:text-slate-400"
                     />
+
+                    <button
+                        onClick={handleVoiceInput}
+                        className={`mr-2 rounded-lg px-4 py-3 font-medium text-white transition ${
+                            isListening
+                                ? "bg-red-600 hover:bg-red-700"
+                                : "bg-slate-600 hover:bg-slate-700"
+                        }`}
+                    >
+                        {isListening ? "🛑" : "🎤"}
+                    </button>
 
                     <button
                         onClick={handleSend}
