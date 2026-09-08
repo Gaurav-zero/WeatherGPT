@@ -11,11 +11,28 @@ const cleanTextForSpeech = (text) => {
         .trim();
 };
 
+const languages = [
+    { name: "English", value: "en", speechCode: "en-IN" },
+    { name: "हिन्दी", value: "hi", speechCode: "hi-IN" },
+    { name: "বাংলা", value: "bn", speechCode: "bn-IN" },
+    { name: "मराठी", value: "mr", speechCode: "mr-IN" },
+    { name: "తెలుగు", value: "te", speechCode: "te-IN" },
+    { name: "தமிழ்", value: "ta", speechCode: "ta-IN" },
+    { name: "ગુજરાતી", value: "gu", speechCode: "gu-IN" },
+    { name: "ಕನ್ನಡ", value: "kn", speechCode: "kn-IN" },
+    { name: "മലയാളം", value: "ml", speechCode: "ml-IN" },
+    { name: "ਪੰਜਾਬੀ", value: "pa", speechCode: "pa-IN" },
+    { name: "ଓଡ଼ିଆ", value: "or", speechCode: "or-IN" },
+];
+
 function ChatBox({weather}) {
     const [message, setMessage]= useState("");
     const [messages, setMessages]= useState([]);
     const [isListening, setIsListening]= useState(false);
     const recognitionRef= useRef(null);
+    const [language, setLanguage]= useState("en");
+
+    
 
     const handleVoiceInput= () => {
         const SpeechRecognition= window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -32,7 +49,11 @@ function ChatBox({weather}) {
 
         const recognition= new SpeechRecognition();
 
-        recognition.lang= "en-IN";
+        const selectedLanguage = languages.find(
+            (lang) => lang.value === language
+        );
+
+        recognition.lang = selectedLanguage.speechCode;
         recognition.continuous=false;
         recognition.interimResults=false;
 
@@ -84,6 +105,7 @@ function ChatBox({weather}) {
                     message,
                     weather,
                     messages,
+                    language,
                 }),
             });
 
@@ -101,7 +123,9 @@ function ChatBox({weather}) {
             const speechText= cleanTextForSpeech(data.reply);
 
             const speech = new SpeechSynthesisUtterance(speechText);
-            speech.lang = "en-IN";
+            speech.lang = languages.find(
+                (lang) => lang.value === language
+            ).speechCode;
 
             window.speechSynthesis.cancel();
             window.speechSynthesis.speak(speech);
@@ -119,9 +143,9 @@ function ChatBox({weather}) {
 
                 {/* Heading */}
                 <div className="text-center">
-                    <p className="text-sm font-semibold tracking-wider text-blue-300">
+                    {/* <p className="text-sm font-semibold tracking-wider text-blue-300">
                         AI WEATHER ASSISTANT
-                    </p>
+                    </p> */}
 
                     <h2 className="mt-2 text-3xl font-bold text-white">
                         Ask WeatherGPT
@@ -131,6 +155,18 @@ function ChatBox({weather}) {
                         Ask questions about weather, forecasts, travel,
                         outdoor activities, agriculture and more.
                     </p>
+
+                    <select
+                        value={language}
+                        onChange={(e) => setLanguage(e.target.value)}
+                        className="rounded-lg bg-white px-1 py-1 text-black outline-none"
+                    >
+                        {languages.map((lang) => (
+                            <option key={lang.value} value={lang.value}>
+                                {lang.name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
                 {messages.length > 0 && (

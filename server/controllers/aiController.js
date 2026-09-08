@@ -11,9 +11,30 @@ const ai= new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY,
 });
 
+async function generateWithRetry(conversation, retries = 3) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            return await ai.models.generateContent({
+                model: "gemini-3.7-flash",
+                contents: conversation,
+            });
+        } catch (error) {
+            if (error.status !== 503 || attempt === retries) {
+                throw error;
+            }
+
+            console.log(`Gemini unavailable. Retrying (${attempt}/${retries})...`);
+
+            await new Promise(resolve =>
+                setTimeout(resolve, 1000 * attempt)
+            );
+        }
+    }
+}
+
 async function manageAI(req,res){
     try{
-        const {message,weather, messages}= req.body;
+        const {message,weather, messages,language}= req.body;
 
         console.log("User message:", message);
         console.log("Weather data received:", weather);
@@ -53,8 +74,9 @@ async function manageAI(req,res){
             parts: [
                 {
                     text: `
-        Current weather data:
+        Respond to the user in ${language}.
 
+        Current weather data:
         ${JSON.stringify(weather, null, 2)}
 
         User's question:
@@ -64,10 +86,7 @@ async function manageAI(req,res){
             ],
         });
 
-        const response= await ai.models.generateContent({
-            model: "gemini-3.7-flash",
-            contents: conversation,
-        });
+        const response = await generateWithRetry(conversation);
 
         console.log("AI response:", response.text);
 
