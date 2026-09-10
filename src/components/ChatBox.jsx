@@ -11,11 +11,64 @@ const cleanTextForSpeech = (text) => {
         .trim();
 };
 
+const languages = [
+    { name: "English", value: "en", speechCode: "en-IN" },
+    { name: "हिन्दी", value: "hi", speechCode: "hi-IN" },
+    { name: "বাংলা", value: "bn", speechCode: "bn-IN" },
+    { name: "मराठी", value: "mr", speechCode: "mr-IN" },
+    { name: "తెలుగు", value: "te", speechCode: "te-IN" },
+    { name: "தமிழ்", value: "ta", speechCode: "ta-IN" },
+    { name: "ગુજરાતી", value: "gu", speechCode: "gu-IN" },
+    { name: "ಕನ್ನಡ", value: "kn", speechCode: "kn-IN" },
+    { name: "മലയാളം", value: "ml", speechCode: "ml-IN" },
+    { name: "ਪੰਜਾਬੀ", value: "pa", speechCode: "pa-IN" },
+    { name: "ଓଡ଼ିଆ", value: "or", speechCode: "or-IN" },
+];
+
 function ChatBox({ weather, language, setLanguage, t }) {
     const [message, setMessage]= useState("");
     const [messages, setMessages]= useState([]);
     const [isListening, setIsListening]= useState(false);
+    const [isVoiceInput, setIsVoiceInput] = useState(false);
     const recognitionRef= useRef(null);
+
+    const handleAgriculture = async () => {
+            try {
+                const response = await fetch("http://localhost:3000/api/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        action: "agriculture",
+                        weather,
+                        messages,
+                        language,
+                    }),
+                });
+
+                const data = await response.json();
+
+                const aiMessage = {
+                    role: "assistant",
+                    content: data.reply,
+                };
+
+                setMessages((prev) => [...prev, aiMessage]);
+
+                const speechText = cleanTextForSpeech(data.reply);
+                const speech = new SpeechSynthesisUtterance(speechText);
+                speech.lang = languages.find(
+                    (lang) => lang.value === language
+                )?.speechCode || "en-IN";
+
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(speech);
+
+            } catch (error) {
+                console.error("Agriculture error:", error);
+            }
+        };
     
 
     const handleVoiceInput= () => {
@@ -51,6 +104,7 @@ function ChatBox({ weather, language, setLanguage, t }) {
             console.log("Voice input:", transcript);
 
             setMessage(transcript);
+            setIsVoiceInput(true);
         };
 
         recognition.onerror = (event) => {
@@ -67,14 +121,14 @@ function ChatBox({ weather, language, setLanguage, t }) {
         recognition.start();
     }
 
-    const handleSend=  async()=>{
-        if(!message.trim()) return;
+    const handleSend=  async(userInput = message)=>{
+        if(!userInput.trim()) return;
 
-        console.log("User asked:", message);
+        console.log("User asked:", userInput);
 
         const userMessage={
             role:"user",
-            content:message,
+            content:userInput,
         };
 
         setMessages((prev) => [...prev, userMessage]);
@@ -86,7 +140,7 @@ function ChatBox({ weather, language, setLanguage, t }) {
                     "Content-Type": "application/json", 
                 },
                 body: JSON.stringify({
-                    message,
+                    message: userInput,
                     weather,
                     messages,
                     language,
@@ -106,18 +160,24 @@ function ChatBox({ weather, language, setLanguage, t }) {
 
             const speechText= cleanTextForSpeech(data.reply);
 
-            const speech = new SpeechSynthesisUtterance(speechText);
-            speech.lang = languages.find(
-                (lang) => lang.value === language
-            ).speechCode;
+            if (isVoiceInput) {
+                const speechText = cleanTextForSpeech(data.reply);
 
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(speech);
+                const speech = new SpeechSynthesisUtterance(speechText);
+
+                speech.lang =
+                    languages.find((lang) => lang.value === language)?.speechCode
+                    || "en-IN";
+
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(speech);
+            }
         }catch(error){
             console.error("Chat error:", error);
         }
         
         setMessage("");
+        setIsVoiceInput(false);
     };
 
 
@@ -177,7 +237,10 @@ function ChatBox({ weather, language, setLanguage, t }) {
                     <input
                         type="text"
                         value={message}
-                        onChange={(e) => setMessage(e.target.value)}
+                        onChange={(e) => {
+                            setMessage(e.target.value);
+                            setIsVoiceInput(false);
+                        }}
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
                                 handleSend();
@@ -219,7 +282,10 @@ function ChatBox({ weather, language, setLanguage, t }) {
                         ✈️ {t.flightWeather}
                     </button>
 
-                    <button className="rounded-full bg-slate-700 px-4 py-2 text-sm text-slate-200 transition hover:bg-slate-600">
+                    <button
+                        onClick={handleAgriculture}
+                        className="rounded-full bg-slate-700 px-4 py-2 text-sm text-slate-200 transition hover:bg-slate-600"
+                    >
                         🌾 {t.agriculture}
                     </button>
 

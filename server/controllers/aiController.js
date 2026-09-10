@@ -15,7 +15,7 @@ async function generateWithRetry(conversation, retries = 3) {
     for (let attempt = 1; attempt <= retries; attempt++) {
         try {
             return await ai.models.generateContent({
-                model: "gemini-3.7-flash",
+                model: "gemini-3.6-flash",
                 contents: conversation,
             });
         } catch (error) {
@@ -34,7 +34,7 @@ async function generateWithRetry(conversation, retries = 3) {
 
 async function manageAI(req,res){
     try{
-        const {message,weather, messages,language}= req.body;
+        const {message,weather, messages,language,action}= req.body;
 
         console.log("User message:", message);
         console.log("Weather data received:", weather);
@@ -48,27 +48,42 @@ async function manageAI(req,res){
             ],
         }));
 
-        // const prompt = `
-        //     You are WeatherGPT, a helpful weather assistant.
+        if (action === "agriculture") {
+            conversation.push({
+                role: "user",
+                parts: [
+                    {
+                        text: `
+        You are WeatherGPT's agriculture assistant.
 
-        //     Here is the current weather and forecast data:
+        Using the current weather data below, provide a brief and useful
+        agriculture-related advisory for farmers.
 
-        //     ${JSON.stringify(weather, null, 2)}
+        Mention relevant conditions such as:
+        - temperature
+        - rainfall
+        - humidity
+        - wind
+        - any other weather factor relevant to farming
 
-        //     User question:
-        //     ${message}
+        Do not invent weather information that is not present in the data.
 
-        //     Answer the user's question using the weather data provided.
-        //     If the information needed to answer the question is not available,
-        //     say that you don't have enough weather data. Note:- sometimes in my code
-        //     I keep getting ETIMEDOUT error while fetching weather data, so if you are not
-        //     getting the weather data, just answer the query by yourself
-        //     cause its for my SIH internal round and if we qualify we will
-        //     see what to do with this ETIMEDOUT error, and don't mention this 
-        //     whatever I have mentioned after the note in reply cause
-        //     that question if from a user of my website
-        // `;
+        After the advisory, ask the user what they would like to know
+        about agriculture.
 
+        Respond entirely in the selected language.
+
+        Selected language: ${language}
+
+        Current weather data:
+        ${JSON.stringify(weather, null, 2)}
+                        `,
+                    },
+                ],
+            });
+        }
+
+        if(action !== "agriculture"){
         conversation.push({
             role: "user",
             parts: [
@@ -85,6 +100,7 @@ async function manageAI(req,res){
                 },
             ],
         });
+    }
 
         const response = await generateWithRetry(conversation);
 

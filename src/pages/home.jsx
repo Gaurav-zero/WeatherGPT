@@ -70,13 +70,13 @@ function Home({language,setLanguage,t}){
             
             <section className="mx-auto max-w-7xl px-6 py-10">
 
-                <h1 className="text-3xl font-bold text-slate-800">
+                {/* <h1 className="text-3xl font-bold text-slate-800">
                     {t.goodMorning}👋 
                 </h1>
 
                 <p className="mt-2 text-slate-500">
                     {t.todayWeather}
-                </p>
+                </p> */}
 
                 <div className="mt-8 flex max-w-3xl items-center rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
 
@@ -98,10 +98,10 @@ function Home({language,setLanguage,t}){
 
                 </div>
 
-                <div className="mt-10 grid grid-cols-3 gap-6">
+                <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
 
                     {/* Current Weather */}
-                    <div className="col-span-2 rounded-2xl bg-white p-8 shadow-sm">
+                    <div className="md:col-span-2 rounded-2xl bg-white px-6 py-5 shadow-sm">
                         <div className="flex items-start justify-between">
 
                             <div>
@@ -129,9 +129,9 @@ function Home({language,setLanguage,t}){
 
                         </div>
 
-                        <div className="mt-8 flex items-center gap-8">
+                        <div className="mt-5 flex items-center gap-6">
 
-                            <div className="text-7xl">
+                            <div className="text-5xl">
                                 {weather?.current.icon}
                             </div>
 
@@ -207,6 +207,13 @@ function Home({language,setLanguage,t}){
 
                 </div>
 
+                <ChatBox
+                    weather={weather}
+                    language={language}
+                    setLanguage={setLanguage}
+                    t={t}
+                />
+
 
                 <Forecast 
                     forecast={weather?.forecast}
@@ -220,12 +227,7 @@ function Home({language,setLanguage,t}){
                     setLanguage={setLanguage}
                     t={t}                    
                 />
-                <ChatBox
-                    weather={weather}
-                    language={language}
-                    setLanguage={setLanguage}
-                    t={t}
-                />
+                
                 <Footer />
 
             </section>
