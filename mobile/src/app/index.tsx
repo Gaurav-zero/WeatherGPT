@@ -1,6 +1,15 @@
-import { FlatList,Pressable, ScrollView,StyleSheet, Text, TextInput, View } from "react-native";
+import { FlatList,Pressable, Modal, ScrollView,StyleSheet, Text, TextInput, View } from "react-native";
 import { useState,useEffect } from "react";
 import * as Location from "expo-location";
+import {
+  useAudioRecorder,
+  useAudioRecorderState,
+  RecordingPresets,
+  requestRecordingPermissionsAsync,
+  setAudioModeAsync,
+} from "expo-audio";
+import { File } from "expo-file-system";
+import translations from "../translations";
 
 export default function HomeScreen() {
   const [search, setSearch] = useState("");
@@ -11,6 +20,84 @@ export default function HomeScreen() {
     { role: "user" | "assistant"; content: string }[]
   >([]);
   const [isChatLoading, setIsChatLoading] = useState(false);
+  const [language, setLanguage] = useState<keyof typeof translations>("en");
+  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
+
+
+  const t= translations[language];
+
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const recorderState = useAudioRecorderState(recorder);
+
+  useEffect(() => {
+    const setupAudio = async () => {
+      const { granted } = await requestRecordingPermissionsAsync();
+
+      if (!granted) {
+        console.log("Microphone permission denied");
+        return;
+      }
+
+      await setAudioModeAsync({
+        allowsRecording: true,
+        playsInSilentMode: true,
+      });
+    };
+
+    setupAudio();
+  }, []);
+
+  const startRecording = async () => {
+    try {
+      await recorder.prepareToRecordAsync();
+      recorder.record();
+
+      console.log("Recording started");
+    } catch (error) {
+      console.error("Failed to start recording:", error);
+    }
+  };
+
+ const stopRecording = async () => {
+  try {
+    await recorder.stop();
+
+    const uri = recorder.uri;
+
+    console.log("Recording stopped");
+    console.log("Audio URI:", uri);
+
+    if (!uri) {
+      console.log("No recording URI");
+      return;
+    }
+
+    const audioFile = new File(uri);
+
+    const formData = new FormData();
+
+    formData.append("audio", audioFile);
+
+    const response = await fetch(
+      "http://10.209.91.90:3000/api/transcribe",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    const data = await response.json();
+    
+    console.log("HTTP status:", response.status);
+    console.log("Transcription response:", data);
+
+    if (data.transcript) {
+      setMessage(data.transcript);
+    }
+  } catch (error) {
+    console.error("Failed to stop/transcribe recording:", error);
+  }
+};
 
   useEffect(() => {
     const loadWeather = async () => {
@@ -75,7 +162,7 @@ export default function HomeScreen() {
             message: userMessage,
             weather: weather,
             messages: messages,
-            language: "en",
+            language: language,
           }),
         });
 
@@ -144,19 +231,47 @@ export default function HomeScreen() {
     }
   };
 
+  const languageNames: Record<keyof typeof translations, string> = {
+    en: "English",
+    hi: "हिन्दी",
+    bn: "বাংলা",
+    mr: "मराठी",
+    te: "తెలుగు",
+    ta: "தமிழ்",
+    gu: "ગુજરાતી",
+    kn: "ಕನ್ನಡ",
+    ml: "മലയാളം",
+    pa: "ਪੰਜਾਬੀ",
+    or: "ଓଡ଼ିଆ",
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
+
+        {/* Language Selector */}
+      <View style={styles.languageSelectorContainer}>
+        <Pressable
+          style={styles.languageSelector}
+          onPress={() => setLanguageMenuOpen(true)}
+        >
+          <Text style={styles.languageSelectorText}>
+            🌐 {languageNames[language]}
+          </Text>
+
+          <Text style={styles.dropdownArrow}>▼</Text>
+        </Pressable>
+      </View>
       <Text style={styles.title}>Mausam</Text>
 
       <Text style={styles.subtitle}>
-        Your AI-powered weather assistant
+        {t.description}
       </Text>
 
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.input}
-          placeholder="Search for a city..."
+          placeholder={t.searchCity}
           value={search}
           onChangeText={setSearch}
         />
@@ -166,7 +281,7 @@ export default function HomeScreen() {
           onPress={handleSearch}
           disabled={isLoading}
         >
-          <Text style={styles.searchButtonText}>Search</Text>
+          <Text style={styles.searchButtonText}>{t.search}</Text>
         </Pressable>
       </View>
 
@@ -193,7 +308,7 @@ export default function HomeScreen() {
               </Text>
 
               <Text style={styles.feelsLike}>
-                Feels like {weather.current.feelsLike}°
+                {t.feelsLike} {weather.current.feelsLike}°
               </Text>
             </View>
           </View>
@@ -201,28 +316,28 @@ export default function HomeScreen() {
           {/* Highlights */}
           <View style={styles.highlights}>
             <View style={styles.highlight}>
-              <Text style={styles.highlightLabel}>💧 Humidity</Text>
+              <Text style={styles.highlightLabel}>💧 {t.humidity}</Text>
               <Text style={styles.highlightValue}>
                 {weather.current.humidity}%
               </Text>
             </View>
 
             <View style={styles.highlight}>
-              <Text style={styles.highlightLabel}>💨 Wind</Text>
+              <Text style={styles.highlightLabel}>💨 {t.wind}</Text>
               <Text style={styles.highlightValue}>
                 {weather.current.windSpeed} km/h
               </Text>
             </View>
 
             <View style={styles.highlight}>
-              <Text style={styles.highlightLabel}>☀️ UV Index</Text>
+              <Text style={styles.highlightLabel}>☀️ {t.uvIndex}</Text>
               <Text style={styles.highlightValue}>
                 {weather.current.uv}
               </Text>
             </View>
 
             <View style={styles.highlight}>
-              <Text style={styles.highlightLabel}>👁 Visibility</Text>
+              <Text style={styles.highlightLabel}>👁 {t.visibility}</Text>
               <Text style={styles.highlightValue}>
                 {(weather.current.visibility / 1000).toFixed(1)} km
               </Text>
@@ -233,7 +348,7 @@ export default function HomeScreen() {
 
       {weather && (
           <View style={styles.forecastSection}>
-            <Text style={styles.sectionTitle}>7-Day Forecast</Text>
+            <Text style={styles.sectionTitle}>{t.forecast}</Text>
 
             <FlatList
               data={weather.forecast}
@@ -282,7 +397,7 @@ export default function HomeScreen() {
             <View style={styles.messagesContainer}>
               {messages.length === 0 ? (
                 <Text style={styles.emptyChat}>
-                  Ask me anything about the weather.
+                  {t.askAnything}
                 </Text>
               ) : (
                 messages.map((msg, index) => (
@@ -304,7 +419,7 @@ export default function HomeScreen() {
 
               {isChatLoading && (
                 <Text style={styles.loadingText}>
-                  WeatherGPT is thinking...
+                  {t.thinking}
                 </Text>
               )}
             </View>
@@ -313,23 +428,105 @@ export default function HomeScreen() {
               <TextInput
                 value={message}
                 onChangeText={setMessage}
-                placeholder="Ask about the weather..."
+                placeholder={t.placeholder}
                 style={styles.chatInput}
                 multiline
               />
+
+              <Pressable
+                onPress={
+                  recorderState.isRecording
+                    ? stopRecording
+                    : startRecording
+                }
+                style={styles.micButton}
+              >
+                <Text style={styles.micButtonText}>
+                  {recorderState.isRecording ? "⏹️" : "🎙️"}
+                </Text>
+              </Pressable>
 
               <Pressable
                 onPress={handleSendMessage}
                 style={styles.sendButton}
                 disabled={isChatLoading}
               >
-                <Text style={styles.sendButtonText}>Send</Text>
+                <Text style={styles.sendButtonText}>{t.ask}</Text>
               </Pressable>
-            </View>
+            </View>          
+        </View>
+
+        {weather?.alert && (
+          <View style={styles.alertCard}>
+            <Text style={styles.alertTitle}>
+              🚨 {weather.alert.title}
+            </Text>
+
+            <Text style={styles.alertSeverity}>
+              Severity: {weather.alert.severity}
+            </Text>
+
+            <Text style={styles.alertDescription}>
+              {weather.alert.description}
+            </Text>
           </View>
-        </ScrollView>
-    </View>
-  );
+        )}
+            </ScrollView>
+
+    {/* Language Dropdown */}
+    <Modal
+      visible={languageMenuOpen}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={() => setLanguageMenuOpen(false)}
+    >
+      <Pressable
+        style={styles.modalOverlay}
+        onPress={() => setLanguageMenuOpen(false)}
+      >
+        <Pressable
+          style={styles.languageMenu}
+          onPress={(e) => e.stopPropagation()}
+        >
+          <Text style={styles.languageMenuTitle}>
+            Select Language
+          </Text>
+
+          {(Object.keys(translations) as Array<
+            keyof typeof translations
+          >).map((lang) => (
+            <Pressable
+              key={lang}
+              style={[
+                styles.languageOption,
+                language === lang && styles.selectedLanguageOption,
+              ]}
+              onPress={() => {
+                setLanguage(lang);
+                setLanguageMenuOpen(false);
+              }}
+            >
+              <Text
+                style={[
+                  styles.languageOptionText,
+                  language === lang &&
+                    styles.selectedLanguageOptionText,
+                ]}
+              >
+                {languageNames[lang]}
+              </Text>
+
+              {language === lang && (
+                <Text style={styles.checkMark}>✓</Text>
+              )}
+            </Pressable>
+          ))}
+        </Pressable>
+      </Pressable>
+    </Modal>
+
+  </View>
+);
 }
 
 const styles = StyleSheet.create({
@@ -517,11 +714,11 @@ chatSection: {
   marginBottom: 30,
 },
 
-sectionTitle: {
-  fontSize: 22,
-  fontWeight: "700",
-  marginBottom: 12,
-},
+// sectionTitle: {
+//   fontSize: 22,
+//   fontWeight: "700",
+//   marginBottom: 12,
+// },
 
 messagesContainer: {
   gap: 10,
@@ -589,5 +786,117 @@ sendButton: {
 sendButtonText: {
   color: "#FFF",
   fontWeight: "600",
+},
+micButton: {
+  width: 48,
+  height: 48,
+  borderRadius: 12,
+  alignItems: "center",
+  justifyContent: "center",
+  backgroundColor: "#eee",
+},
+
+micButtonText: {
+  fontSize: 20,
+},
+
+alertCard: {
+  marginTop: 20,
+  padding: 16,
+  borderRadius: 16,
+  backgroundColor: "#FFF3CD",
+  borderWidth: 1,
+  borderColor: "#FFE69C",
+},
+
+alertTitle: {
+  fontSize: 18,
+  fontWeight: "700",
+  marginBottom: 8,
+},
+
+alertSeverity: {
+  fontSize: 14,
+  fontWeight: "600",
+  marginBottom: 6,
+},
+
+alertDescription: {
+  fontSize: 14,
+  lineHeight: 20,
+},
+languageSelectorContainer: {
+  alignItems: "flex-end",
+  marginBottom: 10,
+},
+
+languageSelector: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  paddingVertical: 8,
+  paddingHorizontal: 12,
+  borderRadius: 10,
+  borderWidth: 1,
+  borderColor: "#D1D5DB",
+  backgroundColor: "#FFFFFF",
+  minWidth: 125,
+},
+
+languageSelectorText: {
+  fontSize: 14,
+  fontWeight: "600",
+},
+
+dropdownArrow: {
+  fontSize: 10,
+  marginLeft: 8,
+},
+
+modalOverlay: {
+  flex: 1,
+  backgroundColor: "rgba(0, 0, 0, 0.4)",
+  justifyContent: "center",
+  alignItems: "center",
+},
+
+languageMenu: {
+  width: "85%",
+  maxHeight: "75%",
+  backgroundColor: "#FFFFFF",
+  borderRadius: 16,
+  padding: 16,
+},
+
+languageMenuTitle: {
+  fontSize: 18,
+  fontWeight: "700",
+  marginBottom: 12,
+},
+
+languageOption: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  paddingVertical: 13,
+  paddingHorizontal: 12,
+  borderRadius: 10,
+},
+
+selectedLanguageOption: {
+  backgroundColor: "#F0F4FF",
+},
+
+languageOptionText: {
+  fontSize: 16,
+},
+
+selectedLanguageOptionText: {
+  fontWeight: "700",
+},
+
+checkMark: {
+  fontSize: 18,
+  fontWeight: "700",
 },
 });

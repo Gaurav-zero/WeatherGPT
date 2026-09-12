@@ -118,6 +118,71 @@ async function manageAI(req,res){
     }
 }
 
-module.exports= {
-    manageAI,
+async function transcribeAudio(req, res) {
+  try {
+    const audio = req.file;
+
+    if (!audio) {
+      return res.status(400).json({
+        error: "No audio file received",
+      });
+    }
+
+    console.log("Received audio:", {
+      mimetype: audio.mimetype,
+      size: audio.size,
+    });
+
+    // Convert multer Buffer → Blob
+    const audioBytes = new Uint8Array(
+      audio.buffer.buffer,
+      audio.buffer.byteOffset,
+      audio.buffer.byteLength
+    );
+
+    const audioBlob = new Blob([audioBytes], {
+      type: audio.mimetype,
+    });
+
+    // Upload audio to Gemini
+    const audioFile = await ai.files.upload({
+      file: audioBlob,
+      config: {
+        mimeType: audio.mimetype,
+      },
+    });
+
+    console.log("Uploaded to Gemini:", audioFile.uri);
+
+    // Transcribe using Gemini 3.5 Transcribe
+    const interaction = await ai.interactions.create({
+      model: "gemini-3.5-transcribe",
+      input: [
+        {
+          type: "audio",
+          uri: audioFile.uri,
+          mime_type: audioFile.mimeType,
+        },
+      ],
+    });
+
+    console.log("Gemini transcription:", interaction.output_text);
+
+    res.json({
+      transcript: interaction.output_text,
+    });
+
+  } catch (error) {
+    console.error("Transcription error:", error);
+
+    res.status(500).json({
+      error: "Failed to transcribe audio",
+      details: error.message,
+    });
+  }
 }
+
+module.exports = {
+  manageAI,
+  transcribeAudio,
+};

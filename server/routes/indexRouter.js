@@ -2,6 +2,12 @@ const {Router}= require("express");
 const weatherController= require("../controllers/weatherController");
 const aiController= require("../controllers/aiController");
 
+const multer = require("multer");
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+});
+
 
 const indexRouter= Router();
 
@@ -12,6 +18,12 @@ indexRouter.get("/", (req, res) =>{
 indexRouter.get("/api/weather", weatherController.getWeatherInfo);
 indexRouter.get("/api/location/search", weatherController.searchLocation);
 indexRouter.post("/api/chat", aiController.manageAI);
+
+indexRouter.post(
+  "/api/transcribe",
+  upload.single("audio"),
+  aiController.transcribeAudio
+);
 
 
 module.exports= indexRouter;
