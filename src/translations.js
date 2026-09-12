@@ -1,7 +1,7 @@
 const translations = {
     en: {
         appName: "WeatherGPT",
-        title: "Ask WeatherGPT",
+        title: "Ask MAUSAM",
         description:
             "Ask questions about weather, forecasts, travel, outdoor activities, agriculture and more.",
         goodMorning: "Good morning",
@@ -9,6 +9,8 @@ const translations = {
         searchCity: "Search for a city...",
         ask: "Ask",
         placeholder: "Will I need an umbrella tomorrow?",
+        askAnything: "Ask me anything about the weather",
+        thinking: "Mausam is thinking...",
         rainForecast: "Rain forecast",
         flightWeather: "Flight weather",
         agriculture: "Agriculture",
@@ -28,7 +30,7 @@ const translations = {
 
     hi: {
         appName: "WeatherGPT",
-        title: "WeatherGPT से पूछें",
+        title: "मौसम से पूछें",
         description:
             "मौसम, पूर्वानुमान, यात्रा, बाहरी गतिविधियों, कृषि और अन्य विषयों के बारे में सवाल पूछें।",
         goodMorning: "सुप्रभात",
@@ -36,6 +38,8 @@ const translations = {
         searchCity: "शहर खोजें...",
         ask: "पूछें",
         placeholder: "क्या मुझे कल छाता लेकर जाना चाहिए?",
+        askAnything: "मौसम के बारे में कुछ भी पूछें",
+        thinking: "मौसम सोच रहा है...",
         rainForecast: "बारिश का पूर्वानुमान",
         flightWeather: "उड़ान का मौसम",
         agriculture: "कृषि",
@@ -55,7 +59,7 @@ const translations = {
 
     bn: {
         appName: "WeatherGPT",
-        title: "WeatherGPT-কে জিজ্ঞাসা করুন",
+        title: "Mausam-কে জিজ্ঞাসা করুন",
         description:
             "আবহাওয়া, পূর্বাভাস, ভ্রমণ, বাইরের কার্যকলাপ, কৃষি এবং আরও অনেক কিছু সম্পর্কে প্রশ্ন করুন।",
         goodMorning: "সুপ্রভাত",
@@ -63,6 +67,8 @@ const translations = {
         searchCity: "একটি শহর খুঁজুন...",
         ask: "জিজ্ঞাসা করুন",
         placeholder: "আগামীকাল কি আমার ছাতা নেওয়া উচিত?",
+        askAnything: "আবহাওয়া সম্পর্কে যেকোনো কিছু জিজ্ঞাসা করুন",
+        thinking: "Mausam ভাবছে...",
         rainForecast: "বৃষ্টির পূর্বাভাস",
         flightWeather: "বিমানের আবহাওয়া",
         agriculture: "কৃষি",
@@ -82,7 +88,7 @@ const translations = {
 
     mr: {
         appName: "WeatherGPT",
-        title: "WeatherGPT ला विचारा",
+        title: "Mausam ला विचारा",
         description:
             "हवामान, अंदाज, प्रवास, बाहेरील उपक्रम, शेती आणि इतर विषयांबद्दल प्रश्न विचारा.",
         goodMorning: "शुभ सकाळ",
@@ -90,6 +96,8 @@ const translations = {
         searchCity: "शहर शोधा...",
         ask: "विचारा",
         placeholder: "उद्या मला छत्री घेऊन जावे लागेल का?",
+        askAnything: "हवामानाबद्दल काहीही विचारा",
+        thinking: "Mausam विचार करत आहे...",
         rainForecast: "पावसाचा अंदाज",
         flightWeather: "विमानाचे हवामान",
         agriculture: "शेती",
@@ -109,7 +117,7 @@ const translations = {
 
     te: {
         appName: "WeatherGPT",
-        title: "WeatherGPTని అడగండి",
+        title: "Mausamని అడగండి",
         description:
             "వాతావరణం, అంచనాలు, ప్రయాణం, బహిరంగ కార్యకలాపాలు, వ్యవసాయం మరియు మరిన్నింటి గురించి ప్రశ్నలు అడగండి.",
         goodMorning: "శుభోదయం",
@@ -117,6 +125,8 @@ const translations = {
         searchCity: "నగరాన్ని వెతకండి...",
         ask: "అడగండి",
         placeholder: "రేపు నేను గొడుగు తీసుకెళ్లాలా?",
+        askAnything: "వాతావరణం గురించి ఏదైనా అడగండి",
+        thinking: "Mausam ఆలోచిస్తోంది...",
         rainForecast: "వర్షం అంచనా",
         flightWeather: "విమాన వాతావరణం",
         agriculture: "వ్యవసాయం",
@@ -136,7 +146,7 @@ const translations = {
 
     ta: {
         appName: "WeatherGPT",
-        title: "WeatherGPT-யிடம் கேளுங்கள்",
+        title: "Mausam-யிடம் கேளுங்கள்",
         description:
             "வானிலை, முன்னறிவிப்பு, பயணம், வெளிப்புற நடவடிக்கைகள், விவசாயம் மற்றும் பலவற்றைப் பற்றி கேளுங்கள்.",
         goodMorning: "காலை வணக்கம்",
@@ -144,6 +154,8 @@ const translations = {
         searchCity: "ஒரு நகரத்தைத் தேடுங்கள்...",
         ask: "கேளுங்கள்",
         placeholder: "நாளை நான் குடை எடுத்துச் செல்ல வேண்டுமா?",
+        askAnything: "வானிலை பற்றி எதையும் கேளுங்கள்",
+        thinking: "Mausam யோசித்துக் கொண்டிருக்கிறது...",
         rainForecast: "மழை முன்னறிவிப்பு",
         flightWeather: "விமான வானிலை",
         agriculture: "விவசாயம்",
@@ -163,7 +175,7 @@ const translations = {
 
     gu: {
         appName: "WeatherGPT",
-        title: "WeatherGPT ને પૂછો",
+        title: "Mausam ને પૂછો",
         description:
             "હવામાન, આગાહી, મુસાફરી, બહારની પ્રવૃત્તિઓ, ખેતી અને વધુ વિશે પ્રશ્નો પૂછો.",
         goodMorning: "સુપ્રભાત",
@@ -171,6 +183,8 @@ const translations = {
         searchCity: "શહેર શોધો...",
         ask: "પૂછો",
         placeholder: "શું મારે કાલે છત્રી લઈ જવી જોઈએ?",
+        askAnything: "હવામાન વિશે કંઈપણ પૂછો",
+        thinking: "Mausam વિચારી રહ્યું છે...",
         rainForecast: "વરસાદની આગાહી",
         flightWeather: "ફ્લાઇટનું હવામાન",
         agriculture: "કૃષિ",
@@ -190,7 +204,7 @@ const translations = {
 
     kn: {
         appName: "WeatherGPT",
-        title: "WeatherGPT ಅನ್ನು ಕೇಳಿ",
+        title: "Mausam ಅನ್ನು ಕೇಳಿ",
         description:
             "ಹವಾಮಾನ, ಮುನ್ಸೂಚನೆ, ಪ್ರಯಾಣ, ಹೊರಾಂಗಣ ಚಟುವಟಿಕೆಗಳು, ಕೃಷಿ ಮತ್ತು ಹೆಚ್ಚಿನವುಗಳ ಬಗ್ಗೆ ಪ್ರಶ್ನೆಗಳನ್ನು ಕೇಳಿ.",
         goodMorning: "ಶುಭೋದಯ",
@@ -198,6 +212,8 @@ const translations = {
         searchCity: "ನಗರವನ್ನು ಹುಡುಕಿ...",
         ask: "ಕೇಳಿ",
         placeholder: "ನಾನು ನಾಳೆ ಛತ್ರಿ ತೆಗೆದುಕೊಂಡು ಹೋಗಬೇಕೇ?",
+        askAnything: "ಹವಾಮಾನದ ಬಗ್ಗೆ ಏನು ಬೇಕಾದರೂ ಕೇಳಿ",
+        thinking: "Mausam ಯೋಚಿಸುತ್ತಿದೆ...",
         rainForecast: "ಮಳೆಯ ಮುನ್ಸೂಚನೆ",
         flightWeather: "ವಿಮಾನ ಹವಾಮಾನ",
         agriculture: "ಕೃಷಿ",
@@ -217,7 +233,7 @@ const translations = {
 
     ml: {
         appName: "WeatherGPT",
-        title: "WeatherGPT-യോട് ചോദിക്കൂ",
+        title: "Mausam-യോട് ചോദിക്കൂ",
         description:
             "കാലാവസ്ഥ, പ്രവചനം, യാത്ര, ഔട്ട്ഡോർ പ്രവർത്തനങ്ങൾ, കൃഷി എന്നിവയെക്കുറിച്ച് ചോദ്യങ്ങൾ ചോദിക്കൂ.",
         goodMorning: "സുപ്രഭാതം",
@@ -225,6 +241,8 @@ const translations = {
         searchCity: "ഒരു നഗരം തിരയുക...",
         ask: "ചോദിക്കൂ",
         placeholder: "നാളെ ഞാൻ കുട എടുക്കേണ്ടതുണ്ടോ?",
+        askAnything: "കാലാവസ്ഥയെക്കുറിച്ച് എന്തും ചോദിക്കൂ",
+        thinking: "Mausam ചിന്തിക്കുകയാണ്...",
         rainForecast: "മഴ പ്രവചനം",
         flightWeather: "വിമാന കാലാവസ്ഥ",
         agriculture: "കൃഷി",
@@ -244,7 +262,7 @@ const translations = {
 
     pa: {
         appName: "WeatherGPT",
-        title: "WeatherGPT ਨੂੰ ਪੁੱਛੋ",
+        title: "Mausam ਨੂੰ ਪੁੱਛੋ",
         description:
             "ਮੌਸਮ, ਪੂਰਵ ਅਨੁਮਾਨ, ਯਾਤਰਾ, ਬਾਹਰੀ ਗਤੀਵਿਧੀਆਂ, ਖੇਤੀਬਾੜੀ ਅਤੇ ਹੋਰ ਬਹੁਤ ਕੁਝ ਬਾਰੇ ਸਵਾਲ ਪੁੱਛੋ।",
         goodMorning: "ਸ਼ੁਭ ਸਵੇਰ",
@@ -252,6 +270,8 @@ const translations = {
         searchCity: "ਸ਼ਹਿਰ ਖੋਜੋ...",
         ask: "ਪੁੱਛੋ",
         placeholder: "ਕੀ ਮੈਨੂੰ ਕੱਲ੍ਹ ਛਤਰੀ ਲੈ ਕੇ ਜਾਣੀ ਚਾਹੀਦੀ ਹੈ?",
+        askAnything: "ਮੌਸਮ ਬਾਰੇ ਕੁਝ ਵੀ ਪੁੱਛੋ",
+        thinking: "Mausam ਸੋਚ ਰਿਹਾ ਹੈ...",
         rainForecast: "ਮੀਂਹ ਦੀ ਭਵਿੱਖਬਾਣੀ",
         flightWeather: "ਉਡਾਣ ਦਾ ਮੌਸਮ",
         agriculture: "ਖੇਤੀਬਾੜੀ",
@@ -271,7 +291,7 @@ const translations = {
 
     or: {
         appName: "WeatherGPT",
-        title: "WeatherGPT କୁ ପଚାରନ୍ତୁ",
+        title: "Mausam କୁ ପଚାରନ୍ତୁ",
         description:
             "ପାଣିପାଗ, ପୂର୍ବାନୁମାନ, ଯାତ୍ରା, ବାହ୍ୟ କାର୍ଯ୍ୟକଳାପ, କୃଷି ଏବଂ ଅନ୍ୟାନ୍ୟ ବିଷୟରେ ପଚାରନ୍ତୁ।",
         goodMorning: "ଶୁଭ ସକାଳ",
@@ -279,6 +299,8 @@ const translations = {
         searchCity: "ଏକ ସହର ଖୋଜନ୍ତୁ...",
         ask: "ପଚାରନ୍ତୁ",
         placeholder: "ଆସନ୍ତାକାଲି ମୁଁ ଛତା ନେଇଯିବି କି?",
+        askAnything: "ପାଣିପାଗ ବିଷୟରେ ଯାହା କିଛି ପଚାରନ୍ତୁ",
+        thinking: "Mausam ଚିନ୍ତା କରୁଛି...",
         rainForecast: "ବର୍ଷା ପୂର୍ବାନୁମାନ",
         flightWeather: "ବିମାନ ପାଣିପାଗ",
         agriculture: "କୃଷି",

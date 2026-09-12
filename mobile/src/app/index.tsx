@@ -10,6 +10,7 @@ import {
 } from "expo-audio";
 import { File } from "expo-file-system";
 import translations from "../translations";
+import * as Speech from "expo-speech";
 
 export default function HomeScreen() {
   const [search, setSearch] = useState("");
@@ -47,6 +48,87 @@ export default function HomeScreen() {
     setupAudio();
   }, []);
 
+  const cleanMarkdown = (text: string) => {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, "$1") // remove bold
+      .replace(/\*(.*?)\*/g, "$1")     // remove italic
+      .replace(/__(.*?)__/g, "$1")     // remove bold
+      .replace(/_(.*?)_/g, "$1")       // remove italic
+      .replace(/`([^`]+)`/g, "$1")     // remove inline code
+      .replace(/^#+\s*/gm, "")         // remove headings
+      .replace(/^[-*]\s+/gm, "")       // remove bullet markers
+      .replace(/\n{3,}/g, "\n\n")       // clean excessive newlines
+      .trim();
+  };
+
+  const handleSendMessage = async (voiceInput = false, messageOverride?:string) => {
+      const userMessage = (messageOverride ?? message).trim();
+
+      if (!userMessage || !weather) return;
+
+      const newMessages = [
+        ...messages,
+        {
+          role: "user" as const,
+          content: userMessage,
+        },
+      ];
+
+      setMessages(newMessages);
+      setMessage("");
+      setIsChatLoading(true);
+
+      try {
+        const response = await fetch("http://10.209.91.90:3000/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: userMessage,
+            weather: weather,
+            messages: messages,
+            language: language,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to get response");
+        }
+
+        const assistantMessage= cleanMarkdown(data.reply);
+
+        setMessages([
+          ...newMessages,
+          {
+            role: "assistant",
+            content: assistantMessage,
+          },
+        ]);
+
+        if (voiceInput) {
+          Speech.speak(assistantMessage, {
+            language: speechLanguages[language],
+          });
+        }
+      } catch (error) {
+        console.error("Chat error:", error);
+
+        setMessages([
+          ...newMessages,
+          {
+            role: "assistant",
+            content: "Sorry, I couldn't get a response right now.",
+          },
+        ]);
+      } finally {
+        setIsChatLoading(false);
+      }
+    };
+
+
   const startRecording = async () => {
     try {
       await recorder.prepareToRecordAsync();
@@ -77,6 +159,7 @@ export default function HomeScreen() {
     const formData = new FormData();
 
     formData.append("audio", audioFile);
+    formData.append("language", language);
 
     const response = await fetch(
       "http://10.209.91.90:3000/api/transcribe",
@@ -93,6 +176,8 @@ export default function HomeScreen() {
 
     if (data.transcript) {
       setMessage(data.transcript);
+
+      await handleSendMessage(true, data.transcript);
     }
   } catch (error) {
     console.error("Failed to stop/transcribe recording:", error);
@@ -135,65 +220,7 @@ export default function HomeScreen() {
     loadWeather();
   }, []);
 
-  const handleSendMessage = async () => {
-      if (!message.trim() || !weather) return;
-
-      const userMessage = message.trim();
-
-      const newMessages = [
-        ...messages,
-        {
-          role: "user" as const,
-          content: userMessage,
-        },
-      ];
-
-      setMessages(newMessages);
-      setMessage("");
-      setIsChatLoading(true);
-
-      try {
-        const response = await fetch("http://10.209.91.90:3000/api/chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            message: userMessage,
-            weather: weather,
-            messages: messages,
-            language: language,
-          }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to get response");
-        }
-
-        setMessages([
-          ...newMessages,
-          {
-            role: "assistant",
-            content: data.reply,
-          },
-        ]);
-      } catch (error) {
-        console.error("Chat error:", error);
-
-        setMessages([
-          ...newMessages,
-          {
-            role: "assistant",
-            content: "Sorry, I couldn't get a response right now.",
-          },
-        ]);
-      } finally {
-        setIsChatLoading(false);
-      }
-    };
-
+  
   const handleSearch = async () => {
     if (!search.trim()) {
       return;
@@ -245,6 +272,20 @@ export default function HomeScreen() {
     or: "ଓଡ଼ିଆ",
   };
 
+  const speechLanguages: Record<keyof typeof translations, string> = {
+  en: "en-IN",
+  hi: "hi-IN",
+  bn: "bn-IN",
+  mr: "mr-IN",
+  te: "te-IN",
+  ta: "ta-IN",
+  gu: "gu-IN",
+  kn: "kn-IN",
+  ml: "ml-IN",
+  pa: "pa-IN",
+  or: "or-IN",
+};
+
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -262,7 +303,7 @@ export default function HomeScreen() {
           <Text style={styles.dropdownArrow}>▼</Text>
         </Pressable>
       </View>
-      <Text style={styles.title}>Mausam</Text>
+      <Text style={styles.title}>MAUSAM</Text>
 
       <Text style={styles.subtitle}>
         {t.description}
@@ -447,7 +488,7 @@ export default function HomeScreen() {
               </Pressable>
 
               <Pressable
-                onPress={handleSendMessage}
+                onPress={() => handleSendMessage()}
                 style={styles.sendButton}
                 disabled={isChatLoading}
               >
