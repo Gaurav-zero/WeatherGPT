@@ -6,6 +6,11 @@ export default function HomeScreen() {
   const [search, setSearch] = useState("");
   const [weather, setWeather] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<
+    { role: "user" | "assistant"; content: string }[]
+  >([]);
+  const [isChatLoading, setIsChatLoading] = useState(false);
 
   useEffect(() => {
     const loadWeather = async () => {
@@ -42,6 +47,65 @@ export default function HomeScreen() {
 
     loadWeather();
   }, []);
+
+  const handleSendMessage = async () => {
+      if (!message.trim() || !weather) return;
+
+      const userMessage = message.trim();
+
+      const newMessages = [
+        ...messages,
+        {
+          role: "user" as const,
+          content: userMessage,
+        },
+      ];
+
+      setMessages(newMessages);
+      setMessage("");
+      setIsChatLoading(true);
+
+      try {
+        const response = await fetch("http://10.209.91.90:3000/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: userMessage,
+            weather: weather,
+            messages: messages,
+            language: "en",
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to get response");
+        }
+
+        setMessages([
+          ...newMessages,
+          {
+            role: "assistant",
+            content: data.reply,
+          },
+        ]);
+      } catch (error) {
+        console.error("Chat error:", error);
+
+        setMessages([
+          ...newMessages,
+          {
+            role: "assistant",
+            content: "Sorry, I couldn't get a response right now.",
+          },
+        ]);
+      } finally {
+        setIsChatLoading(false);
+      }
+    };
 
   const handleSearch = async () => {
     if (!search.trim()) {
@@ -211,6 +275,58 @@ export default function HomeScreen() {
             />
           </View>
         )}
+
+        <View style={styles.chatSection}>
+            <Text style={styles.sectionTitle}>Mausam Assistant</Text>
+
+            <View style={styles.messagesContainer}>
+              {messages.length === 0 ? (
+                <Text style={styles.emptyChat}>
+                  Ask me anything about the weather.
+                </Text>
+              ) : (
+                messages.map((msg, index) => (
+                  <View
+                    key={index}
+                    style={[
+                      styles.messageBubble,
+                      msg.role === "user"
+                        ? styles.userBubble
+                        : styles.assistantBubble,
+                    ]}
+                  >
+                    <Text style={styles.messageText}>
+                      {msg.content}
+                    </Text>
+                  </View>
+                ))
+              )}
+
+              {isChatLoading && (
+                <Text style={styles.loadingText}>
+                  WeatherGPT is thinking...
+                </Text>
+              )}
+            </View>
+
+            <View style={styles.inputRow}>
+              <TextInput
+                value={message}
+                onChangeText={setMessage}
+                placeholder="Ask about the weather..."
+                style={styles.chatInput}
+                multiline
+              />
+
+              <Pressable
+                onPress={handleSendMessage}
+                style={styles.sendButton}
+                disabled={isChatLoading}
+              >
+                <Text style={styles.sendButtonText}>Send</Text>
+              </Pressable>
+            </View>
+          </View>
         </ScrollView>
     </View>
   );
@@ -395,5 +511,83 @@ rain: {
   marginTop: 10,
   fontSize: 13,
   color: "#64748b",
+},
+chatSection: {
+  marginTop: 24,
+  marginBottom: 30,
+},
+
+sectionTitle: {
+  fontSize: 22,
+  fontWeight: "700",
+  marginBottom: 12,
+},
+
+messagesContainer: {
+  gap: 10,
+  marginBottom: 12,
+},
+
+emptyChat: {
+  color: "#777",
+  fontSize: 15,
+  paddingVertical: 20,
+},
+
+messageBubble: {
+  maxWidth: "85%",
+  padding: 12,
+  borderRadius: 14,
+},
+
+userBubble: {
+  alignSelf: "flex-end",
+  backgroundColor: "#007AFF",
+},
+
+assistantBubble: {
+  alignSelf: "flex-start",
+  backgroundColor: "#EAEAEA",
+},
+
+messageText: {
+  fontSize: 15,
+  color: "#111",
+},
+
+loadingText: {
+  fontSize: 14,
+  color: "#777",
+  marginTop: 4,
+},
+
+inputRow: {
+  flexDirection: "row",
+  alignItems: "flex-end",
+  gap: 8,
+},
+
+chatInput: {
+  flex: 1,
+  minHeight: 48,
+  maxHeight: 100,
+  borderWidth: 1,
+  borderColor: "#CCC",
+  borderRadius: 12,
+  paddingHorizontal: 14,
+  paddingVertical: 10,
+  fontSize: 15,
+},
+
+sendButton: {
+  backgroundColor: "#007AFF",
+  paddingHorizontal: 16,
+  paddingVertical: 14,
+  borderRadius: 12,
+},
+
+sendButtonText: {
+  color: "#FFF",
+  fontWeight: "600",
 },
 });
