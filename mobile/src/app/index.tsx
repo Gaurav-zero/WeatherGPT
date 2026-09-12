@@ -1,9 +1,46 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { useState } from "react";
+import { useState,useEffect } from "react";
+import * as Location from "expo-location";
 
 export default function HomeScreen() {
   const [search, setSearch] = useState("");
   const [weather, setWeather] = useState<any>(null);
+
+  useEffect(() => {
+    const loadWeather = async () => {
+      try {
+        const { status } =
+          await Location.requestForegroundPermissionsAsync();
+
+        if (status !== "granted") {
+          console.log("Location permission denied");
+          return;
+        }
+
+        const location =
+          await Location.getCurrentPositionAsync({});
+
+        const { latitude, longitude } = location.coords;
+
+        console.log("Latitude:", latitude);
+        console.log("Longitude:", longitude);
+
+        const response = await fetch(
+          `http://10.209.91.90:3000/api/weather?lat=${latitude}&lon=${longitude}`
+        );
+
+        const weatherData = await response.json();
+
+        console.log("Current location weather:", weatherData);
+
+        setWeather(weatherData);
+      } catch (error) {
+        console.error("Location/weather error:", error);
+      }
+    };
+
+    loadWeather();
+  }, []);
 
   const handleSearch = async () => {
     if (!search.trim()) {
