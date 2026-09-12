@@ -1,10 +1,11 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { FlatList,Pressable, ScrollView,StyleSheet, Text, TextInput, View } from "react-native";
 import { useState,useEffect } from "react";
 import * as Location from "expo-location";
 
 export default function HomeScreen() {
   const [search, setSearch] = useState("");
   const [weather, setWeather] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const loadWeather = async () => {
@@ -48,6 +49,7 @@ export default function HomeScreen() {
     }
 
     try {
+      setIsLoading(true);
       console.log("Searching for:", search);
 
       const locationResponse = await fetch(
@@ -70,13 +72,17 @@ export default function HomeScreen() {
       console.log("Weather:", weatherData);
 
       setWeather(weatherData);
+      setSearch("");
     } catch (error) {
       console.error("Search error:", error);
+    }finally{
+      setIsLoading(false);
     }
   };
 
   return (
     <View style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
       <Text style={styles.title}>Mausam</Text>
 
       <Text style={styles.subtitle}>
@@ -94,6 +100,7 @@ export default function HomeScreen() {
         <Pressable
           style={styles.searchButton}
           onPress={handleSearch}
+          disabled={isLoading}
         >
           <Text style={styles.searchButtonText}>Search</Text>
         </Pressable>
@@ -159,6 +166,52 @@ export default function HomeScreen() {
           </View>
         </View>
       )}
+
+      {weather && (
+          <View style={styles.forecastSection}>
+            <Text style={styles.sectionTitle}>7-Day Forecast</Text>
+
+            <FlatList
+              data={weather.forecast}
+              keyExtractor={(item) => item.date}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.forecastList}
+              renderItem={({ item }) => (
+                <View style={styles.forecastCard}>
+                  <Text style={styles.forecastDay}>
+                    {new Date(item.date).toLocaleDateString("en-US", {
+                      weekday: "short",
+                    })}
+                  </Text>
+
+                  <Text style={styles.forecastIcon}>
+                    {item.icon}
+                  </Text>
+
+                  <Text style={styles.forecastCondition}>
+                    {item.condition}
+                  </Text>
+
+                  <View style={styles.temperatures}>
+                    <Text style={styles.high}>
+                      {item.high}°
+                    </Text>
+
+                    <Text style={styles.low}>
+                      {item.low}°
+                    </Text>
+                  </View>
+
+                  <Text style={styles.rain}>
+                    💧 {item.rainProbability}%
+                  </Text>
+                </View>
+              )}
+            />
+          </View>
+        )}
+        </ScrollView>
     </View>
   );
 }
@@ -277,5 +330,70 @@ highlightValue: {
   fontSize: 15,
   fontWeight: "600",
   color: "#1e293b",
+},
+
+forecastSection: {
+  marginTop: 30,
+},
+
+sectionTitle: {
+  fontSize: 22,
+  fontWeight: "700",
+  color: "#1e293b",
+  marginBottom: 14,
+},
+
+forecastList: {
+  gap: 12,
+},
+
+forecastCard: {
+  width: 130,
+  backgroundColor: "white",
+  borderRadius: 18,
+  padding: 16,
+  alignItems: "center",
+},
+
+forecastDay: {
+  fontSize: 15,
+  fontWeight: "600",
+  color: "#64748b",
+},
+
+forecastIcon: {
+  fontSize: 36,
+  marginTop: 12,
+},
+
+forecastCondition: {
+  fontSize: 13,
+  color: "#64748b",
+  textAlign: "center",
+  marginTop: 8,
+  minHeight: 34,
+},
+
+temperatures: {
+  flexDirection: "row",
+  gap: 8,
+  marginTop: 12,
+},
+
+high: {
+  fontSize: 16,
+  fontWeight: "700",
+  color: "#1e293b",
+},
+
+low: {
+  fontSize: 16,
+  color: "#94a3b8",
+},
+
+rain: {
+  marginTop: 10,
+  fontSize: 13,
+  color: "#64748b",
 },
 });
